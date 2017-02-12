@@ -1,0 +1,64 @@
+body{
+  padding-top: 20%;
+  padding-bottom: 0px;
+  font-family:'Lobster', Georgia, Times, serif;
+  background-color:#eee;
+  background:url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWbAMtU9cczFgghT8LmGLPKGHY0eSWTnq4cDXZczAcqL2R7MHXpw");
+}
+
+.btn-group.btn-group-lg{
+    width: auto;
+}
+.btn.btn-primary{
+  width:auto;
+  box-sizing:border-box;
+  color: black;
+  font-style:bold;
+  background-color:   #ffffff;
+  border:none;
+  border-bottom:  5px solid blue;
+  margin-right:5px;
+  margin-left:5px;
+  font-size:36px;
+  padding-bottom:0px;
+}
+.wrongLetterClass{
+  padding:10px;
+  margin:5px;
+  font-style:bold;
+  font-size:36px;
+  color:white;
+  background:black;
+  disabled:true;
+}
+
+img{
+  position:relative; 
+  top:50px;
+}
+.navbar-header {
+    font-family: Lobster;
+    float: left;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+   
+}
+.navbar-brand {
+  float:none;
+  font-size: 2em;
+}
+.navbar{
+color:grey;
+}
+
+.navbar.navbar-header.navbar-brand{
+color:grey;
+background-color: black;
+}
+
+#maincontainer{
+  position: relative;
+  height: 100%;
+  overflow-y: hidden;
+}

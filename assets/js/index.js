@@ -1,0 +1,256 @@
+ $(document).ready(function(){
+   
+var timerClock = 0;
+var wrongLetters= [];
+var correctLetters =[];
+var guessedLetter = null;
+var guessLetterObject ={};
+var imgAddr ="http://www.drodd.com/images12/smiley-face-clip-art1.jpg";
+
+var snowman = {
+
+  init : function(){
+  wrongLetters = [];
+  correctLetters = [];
+  guessedLetter = "";
+  guessLetterObject = {};
+ //console.log("wrongLetters: " + wrongLetters );
+ //console.log("correctLetters: " + correctLetters);
+ //console.log("guessedLetter: " + guessedLetter);
+    
+  //remove previous correct data, incorrect data and hint
+   $("#wordDiv").empty();
+   $("#hint").html("");
+   $("#wrongLetter").empty();
+   $("#section1").empty();
+    
+ //pick a random word from json db pre-requisite
+  var pickedWordObj = randomWord();
+  var pickedWord = pickedWordObj.word;
+  var pickedWordHint = pickedWordObj.hint;
+  //console.log(pickedWord);
+ //validate the word fullfills validation rules
+  while(!validate_pickedWord(pickedWord)){
+      pickedWord = randomWord();
+  }
+  
+ //generate a lookup of expected word character array
+ guessLetterObject = generatedExpLookUp(pickedWord);
+ console.log(guessLetterObject);    
+ //create empty spaces on the UI per word's length
+ displayDashesForGuess(pickedWord);
+ //display hint for guess word
+ displayHintForGuess(pickedWordHint);
+ //listen to the key pressed events from the user for all 26 letters A-Z
+}  
+};
+
+/**validate picked word is fullfilling the min and max allowed length.In case otherwise, pick another word**/
+ var validate_pickedWord = function(pickedWord){
+  /* 
+  1. It consists of only English Alphabets
+  2. length of the word is minimum 3 letter long and maximum 20 letter long*/
+  var pattern = /\w{3,20}/i;
+  return pattern.test(pickedWord); 
+};
+
+/**get random work picked**/
+var randomWord = function(){
+  //console.log(wordData.length);
+  var ranNum = Math.floor(Math.random()*(wordData.length));
+  //console.log(wordData[ranNum]);
+  return wordData[ranNum];  
+};
+   
+/** generate empty spaces on ui for random word**/
+var displayDashesForGuess = function(word){
+  var wordLen = word.length;
+  console.log(wordLen);
+   
+    for(i=0;i<wordLen;i++){
+     var buttonEle = $("<button></button>");
+     buttonEle.attr("id", "button-" + i);
+     buttonEle.addClass("btn btn-primary");
+     buttonEle.attr("type","button");
+     buttonEle.prop('disabled', true);
+     $("#wordDiv").append(buttonEle);
+   }
+  
+  //display lives
+   
+  for(i=0;i<(wordLen+5);i++){
+     var img = $("<img>");
+     img.attr("src", imgAddr);
+     img.addClass("img-circle");  
+     img.attr("width","75px");
+     img.attr("height","75px");
+     img.animate({top: "+=100"}, 2000);
+     img.animate({top: "-=100"}, 2000);
+     $("#section1").append(img);
+   }
+  
+}
+
+/** display hint for the guessed word**/
+var displayHintForGuess = function(hint){
+     var hintStr = "Hint: ";
+     hintStr += hint;
+     console.log(hintStr);
+     $("#hint").html(hintStr);
+}  
+/** generate expected lookUpArray of guessed letters of the word*/
+var generatedExpLookUp = function(word){
+  var map = {};
+  var wordLen = word.length;
+  var word = word.toUpperCase();
+  var charArray = word.split('');
+  for(i=0;i<charArray.length;i++){
+      var charCode = charArray[i].charCodeAt(0);
+      map[i]=charArray[i];
+  }
+  console.log(map);
+  return map;
+}
+/** Window's event listener for capturing pressed letter keys**/
+window.addEventListener('keyup', function (e) {
+  /***check the wrongLetter array count***/
+  if ( !userOutOfChances() && !userWon()){
+  
+   var alphArray = ['A','B','C','D','E','F','G','F','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+   var charCode = e.which?e.which:e.keyCode;
+   var charValue = String.fromCharCode(charCode);
+  // console.log(e.which + " : " + e.keyCode + " : "+charValue);
+    if( alphArray.indexOf(charValue) > -1 ){
+      if((Object.values(guessLetterObject)).indexOf(charValue) > -1 && correctLetters.indexOf(charValue)<= -1){
+         //console.log(charValue);
+        for (var [key, value] of Object.entries(guessLetterObject)) {
+             //console.log(value+" : "+ charValue);
+             if(value===charValue){
+                correctLetters.push(charValue);
+               // console.log(key + " : " + value +"is equal to" + charValue);
+                displayCharacter(key,value);
+                
+                
+             }
+          }
+      }
+      }else{
+        //wrong character list display
+        if( correctLetters.indexOf(charValue)<= -1)
+        {
+          wrongLetters.push(charValue);
+          displayWrongCharacter(charValue);
+          $("#section1 img").first().remove();
+          
+        }
+        
+      }
+   }
+
+ }, false);
+   
+/******displayCharacter on screen*****/
+var displayCharacter = function(key,charValue) {
+  //$("#button-" + key).prop('value',charValue);
+  $("#button-" + key).html(charValue);
+ } ;
+/*****display wrong character***/
+ var displayWrongCharacter = function(charValue) {
+  var delText = $("<del></del>");
+  delText.html(charValue);
+  var buttonE = $("<button></button>");
+  buttonE.append(delText);
+  buttonE.addClass("wrongLetterClass");
+  $("#wrongLetter").append(buttonE);
+ // spanEle.html(charValue);
+ } ;
+/**********create custom events to keep check on winning and lossing check points***********/
+var userWon = function(){
+  if(correctLetters.length===(Object.values(guessLetterObject)).length){
+   var myEvent = new CustomEvent("wordCompleted");
+   document.body.dispatchEvent(myEvent);
+   return true; 
+  } else{
+    return false;
+  }
+};
+ document.body.addEventListener("wordCompleted", userWonfunc, false);
+ 
+function userWonfunc(e) {
+    alert("user won");
+    snowman.init();
+}
+ 
+
+/*********************************************************************************************/
+ var userOutOfChances = function(){
+     var limit = (Object.values(guessLetterObject)).length;
+   if(wrongLetters.length>(limit+4))
+    {
+     var myEvent = new CustomEvent("outOfChances");
+     document.body.dispatchEvent(myEvent);
+     return true;
+    }
+   else
+     return false;
+  
+ };
+   
+document.body.addEventListener("outOfChances", userLost, false);
+ 
+function userLost(e) {
+    //show modal user lost
+  alert("user lost! start again.");
+  snowman.init();
+}
+ 
+
+/****test-data************/
+   
+var wordData = [{
+	"word": "webdesigner",
+	"hint": "who beautifies the web page"
+}, {
+	"word": "developer",
+	"hint": "who builds websites"
+}, {
+	"word": "sql",
+	"hint": "language to query database"
+}, {
+	"word": "html",
+	"hint": "web DOM cannot survive without me"
+}, {
+	"word": "css",
+	"hint": "add color and properties to webpage"
+}, {
+	"word": "javascript",
+	"hint": "wepage interaction happens due to me!"
+}, {
+	"word": "jquery",
+	"hint": "abstraction of javascript"
+}, {
+	"word": "bootstrap",
+	"hint": "abstraction of CSS"
+}, {
+	"word": "github",
+	"hint": "cloud server to manage different versions of the source"
+}, {
+	"word": "heroku",
+	"hint": "cloud server to host your web applications"
+}, {
+	"word": "webservices",
+	"hint": "A function to  expose data and methods to the outside world over http protocol"
+}, {
+	"word": "json",
+	"hint": "javascript notation to support interoperability data exchange  "
+}, {
+	"word": "ajax",
+	"hint": "web 2.0 technology to eliminiate page reloads "
+}, {
+	"word": "http",
+	"hint": "protocol of internet"
+}];
+   
+ snowman.init();
+
+});
