@@ -129,7 +129,7 @@ var userWon = function(){
 document.body.addEventListener("wordCompleted", userWonfunc, false);
  
 function userWonfunc(e) {
-  alert("won");
+  //alert("won");
   $("<div id='wonDialog' title='Game Over!'>You Won.</div>").dialog({
    /* appendTo: "#wordDiv",
     autoOpen:true,
