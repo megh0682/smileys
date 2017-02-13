@@ -62,3 +62,10 @@ background-color: black;
   height: 100%;
   overflow-y: hidden;
 }
+#section1{
+  padding-bottom: 20%;
+}
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+.ui-dialog,.ui-dialog,.ui-widget, .ui-widget-content, .ui-corner-all, .foo, .ui-draggable, .ui-resizable {background:#87ceeb}
